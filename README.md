@@ -1,6 +1,7 @@
 Adapted from: https://lucasklassmann.com/blog/2019-02-02-embedding-lua-in-c/
 
 Just run: odin run .
+
 Shows:
   * Starting a Lua state
   * Defining variables for Lua
