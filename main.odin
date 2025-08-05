@@ -485,15 +485,7 @@ testing ::proc(t: ^testing.T){
             fmt.println("couldnt load function")
         }
 
- // intentional error in string
-    faultystring:=cstring("print(return")
-    if lua.L_dostring(L, faultystring) != 0 {
-        // get error message from lua
-        raised_error:= lua.tostring(L,lua.gettop(L))
-        fmt.println(raised_error)
-        // always pop
-        lua.pop(L,lua.gettop(L))
-    }
+ 
     
     // test metatable (not working :( )
     new_string:=cstring("local acc = sys.Account.new(\"Jason\", 1000) \n print(string.format(\"name: %s, balance: %d\", acc:get_name(), acc:get_balance()))")
@@ -505,11 +497,18 @@ testing ::proc(t: ^testing.T){
         lua.pop(L,lua.gettop(L))
     }
 
-
-
-  
+    // intentional error in string
+    faultystring:=cstring("print(return")
+    if lua.L_dostring(L, faultystring) != 0 {
+        // get error message from lua
+        raised_error:= lua.tostring(L,lua.gettop(L))
+        fmt.println(raised_error)
+        // always pop
+        lua.pop(L,lua.gettop(L))
+    }
 
 
 }
+
 
 
