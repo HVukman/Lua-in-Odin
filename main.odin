@@ -498,9 +498,18 @@ testing ::proc(t: ^testing.T){
         else{
             fmt.println("couldnt load function")
         }
-       
+
+ // intentional error in string
+    faultystring:=cstring("print(return")
+    if lua.L_dostring(L, faultystring) != 0 {
+        // get error message from lua
+        raised_error:= lua.tostring(L,lua.gettop(L))
+        fmt.println(raised_error)
+        // always pop
+        lua.pop(L,lua.gettop(L))
+    }
     
-    // test metatable
+    // test metatable (not working :( )
     new_string:=cstring("local acc = sys.Account.new(\"Jason\", 1000) \n print(string.format(\"name: %s, balance: %d\", acc:get_name(), acc:get_balance()))")
     if lua.L_dostring(L, new_string) != 0 {
         // get error message from lua
@@ -510,21 +519,10 @@ testing ::proc(t: ^testing.T){
         lua.pop(L,lua.gettop(L))
     }
 
-    // test metatable
-    new_string2:=cstring("print (\"hello there\")")
-    if lua.L_dostring(L, new_string2) != 0 {
-        fmt.println("Error executing Lua script");
-    }
 
-   // intentional error in string
-    faultystring:=cstring("print(return")
-    if lua.L_dostring(L, faultystring) != 0 {
-        // get error message from lua
-        raised_error:= lua.tostring(L,lua.gettop(L))
-        fmt.println(raised_error)
-        // always pop
-        lua.pop(L,lua.gettop(L))
-    }
+
+  
 
 
 }
+
