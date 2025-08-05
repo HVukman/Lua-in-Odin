@@ -26,7 +26,6 @@ mt_account_new :: proc "c"(L:^lua.State)->i32 {
     dist := libc.size_t(size_of(account))
 
     new := account
-  //  dist := libc.size_t(4096)
     self : = lua.newuserdata(L,libc.size_t(size_of(new)))
 
     append_elem(&new.name, name)
@@ -37,15 +36,14 @@ mt_account_new :: proc "c"(L:^lua.State)->i32 {
 }
 
 push_mt_account :: proc "c"(L:^lua.State) -> int{
+   // push new account
     context = runtime.default_context()
-     // creating a library mymath with function mul
     L_Reg1 : lua.L_Reg
 
     L_Reg1.func=mt_account_new
     L_Reg1.name=cstring("mt_account_new")
 
     lua.L_newmetatable(L,"mt_account")
-    // set function multiplication
     lua.L_setfuncs(L,&L_Reg1, 0)
     
     lua.pushvalue(L,-1)
@@ -55,13 +53,11 @@ push_mt_account :: proc "c"(L:^lua.State) -> int{
 }
 
 mt_account_delete:: proc "c" (L:^lua.State)->i32 {
-
+ // delete account
   context = runtime.default_context()
   dist := libc.size_t(size_of(account))
 
   new := account
-  //  dist := libc.size_t(4096)
-  //self : = lua.newuserdata(L,libc.size_t(size_of(new)))
   self := lua.L_checkudata(L,1,"mt_account")
   delete (new.name)
   
@@ -72,8 +68,6 @@ mt_account_deposit:: proc "c" (L:^lua.State)->i32 {
   context = runtime.default_context()
 
   new := account
-  //  dist := libc.size_t(4096)
-  //self : = lua.newuserdata(L,libc.size_t(size_of(new)))
   self := lua.L_checkudata(L,1,"mt_account")
   n := lua.L_checknumber(L, 2);
   new.balance += i32(n);
@@ -85,8 +79,6 @@ mt_account_withdraw:: proc "c" (L:^lua.State)->i32 {
    context = runtime.default_context()
 
   new := account
-  //  dist := libc.size_t(4096)
-  //self : = lua.newuserdata(L,libc.size_t(size_of(new)))
   self := lua.L_checkudata(L,1,"mt_account")
   n := lua.L_checknumber(L, 2);
   new.balance -= i32(n);
@@ -98,8 +90,6 @@ mt_account_get_name:: proc "c" (L:^lua.State)->i32 {
   context = runtime.default_context()
 
   new := account
-  //  dist := libc.size_t(4096)
-  //self : = lua.newuserdata(L,libc.size_t(size_of(new)))
   self := lua.L_checkudata(L,1,"mt_account")
   name := new.name[:]
   builder := strings.builder_from_bytes(transmute([]u8)name)
@@ -111,8 +101,6 @@ mt_account_get_name:: proc "c" (L:^lua.State)->i32 {
 
 mt_account_get_balance:: proc "c" (L:^lua.State)->i32 {
   new := account
-  //  dist := libc.size_t(4096)
-  //self : = lua.newuserdata(L,libc.size_t(size_of(new)))
   self := lua.L_checkudata(L,1,"mt_account")
   balance := lua.L_checkinteger(L,new.balance)
   lua.pushinteger(L,balance)
@@ -122,9 +110,8 @@ mt_account_get_balance:: proc "c" (L:^lua.State)->i32 {
 
 register_mt_account:: proc "c" (L:^lua.State)->i32 {
     context = runtime.default_context()
-     // creating a library mymath with function mul
     L_Reg1 : lua.L_Reg
-
+   // creating the fields for Account
    L_Reg1.func=mt_account_new
    L_Reg1.name=cstring("new")
    L_Reg1.func= mt_account_delete
@@ -141,8 +128,7 @@ register_mt_account:: proc "c" (L:^lua.State)->i32 {
    L_Reg1.name = nil
 
   
-     lua.L_setfuncs(L,&L_Reg1,0)
-
+    lua.L_setfuncs(L,&L_Reg1,0)
     lua.L_newmetatable(L, cstring("mt_account"))
   
     lua.pushvalue(L,-1)
@@ -525,4 +511,5 @@ testing ::proc(t: ^testing.T){
 
 
 }
+
 
