@@ -13,3 +13,5 @@ Shows:
   * Getting errors from Lua
 
 Don't forget the lua files.
+
+Update 08-05-2025: Removed the dynamic allocations, since they are not needed. Added tests. Trying to do metatables, but the fields of the tables are not recognized.
