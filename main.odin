@@ -16,7 +16,7 @@ account :struct {
     balance: i32
 }
 
-
+// Reference: https://jasonliang.js.org/metatables-in-c.html
 mt_account_new :: proc "c"(L:^lua.State)->i32 {
 
     context = runtime.default_context()
@@ -349,6 +349,7 @@ testing ::proc(t: ^testing.T){
 
 
 }
+
 
 
 
