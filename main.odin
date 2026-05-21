@@ -11,143 +11,15 @@ import "core:mem"
 import "base:intrinsics"
 import "core:strings"
 
-account :struct {
-    name: [dynamic]cstring,
-    balance: i32
-}
 
-// Reference: https://jasonliang.js.org/metatables-in-c.html
-mt_account_new :: proc "c"(L:^lua.State)->i32 {
-
-    context = runtime.default_context()
-
-    name := lua.L_checkstring(L,1)
-    balance := lua.L_checkinteger(L,2)
-    dist := libc.size_t(size_of(account))
-
-    new := account
-    self : = lua.newuserdata(L,libc.size_t(size_of(new)))
-
-    append_elem(&new.name, name)
-    new.balance = i32(balance)
-    
-    lua.L_setmetatable(L,cstring("mt_account"))
-    return 1
-}
-
-push_mt_account :: proc "c"(L:^lua.State) -> int{
-   // push new account
-    context = runtime.default_context()
-    L_Reg1 : lua.L_Reg
-
-    L_Reg1.func=mt_account_new
-    L_Reg1.name=cstring("mt_account_new")
-
-    lua.L_newmetatable(L,"mt_account")
-    lua.L_setfuncs(L,&L_Reg1, 0)
-    
-    lua.pushvalue(L,-1)
-    lua.setfield(L,-2,"__index")
-
-    return 1
-}
-
-mt_account_delete:: proc "c" (L:^lua.State)->i32 {
- // delete account
-  context = runtime.default_context()
-  dist := libc.size_t(size_of(account))
-
-  new := account
-  self := lua.L_checkudata(L,1,"mt_account")
-  delete (new.name)
-  
-  return 0;
-}
-
-mt_account_deposit:: proc "c" (L:^lua.State)->i32 {
-  context = runtime.default_context()
-
-  new := account
-  self := lua.L_checkudata(L,1,"mt_account")
-  n := lua.L_checknumber(L, 2);
-  new.balance += i32(n);
-
-  return 0;
-}
-
-mt_account_withdraw:: proc "c" (L:^lua.State)->i32 {
-   context = runtime.default_context()
-
-  new := account
-  self := lua.L_checkudata(L,1,"mt_account")
-  n := lua.L_checknumber(L, 2);
-  new.balance -= i32(n);
-
-  return 0;
-}
-
-mt_account_get_name:: proc "c" (L:^lua.State)->i32 {
-  context = runtime.default_context()
-
-  new := account
-  self := lua.L_checkudata(L,1,"mt_account")
-  name := new.name[:]
-  builder := strings.builder_from_bytes(transmute([]u8)name)
-  finally := strings.to_cstring(&builder)
-  
-  lua.pushstring(L, finally );
-  return 1;
-}
-
-mt_account_get_balance:: proc "c" (L:^lua.State)->i32 {
-  new := account
-  self := lua.L_checkudata(L,1,"mt_account")
-  balance := lua.L_checkinteger(L,new.balance)
-  lua.pushinteger(L,balance)
-  
-  return 1;
-}
-
-register_mt_account:: proc "c" (L:^lua.State)->i32 {
-    context = runtime.default_context()
-    L_Reg1 : lua.L_Reg
-   // creating the fields for Account
-   L_Reg1.func=mt_account_new
-   L_Reg1.name=cstring("new")
-   L_Reg1.func= mt_account_delete
-   L_Reg1.name=cstring("__gc")
-   L_Reg1.func= mt_account_deposit
-   L_Reg1.name=cstring("deposit")
-   L_Reg1.func= mt_account_withdraw
-   L_Reg1.name=cstring("withdraw")
-   L_Reg1.func= mt_account_get_name
-   L_Reg1.name=cstring("get_name")
-   L_Reg1.func= mt_account_get_balance
-   L_Reg1.name=cstring("get_balance")
-   L_Reg1.func = nil
-   L_Reg1.name = nil
-
-  
-    lua.L_setfuncs(L,&L_Reg1,0)
-    lua.L_newmetatable(L, cstring("mt_account"))
-  
-    lua.pushvalue(L,-1)
-    lua.setfield(L,-2,"__index")
-
-    return 1;
-}
 
 open_sys :: proc "c" (L:^lua.State)->i32{
     
     context = runtime.default_context()
     L_Reg1 : lua.L_Reg
     v_aos: [1]lua.L_Reg 
-   
     v_aos[0]=L_Reg1
-
-    lua.L_newlib(L,v_aos[:])
-    register_mt_account(L)
-    lua.setfield(L,-2,"Account")
+    
 
     return 1
 }
@@ -156,7 +28,6 @@ hello_from_odin :: proc "c" (L:^lua.State)->i32{
     context = runtime.default_context()
     libc.printf("Calling Odin from Lua")
     libc.printf("\n")
-
     return 1
 }
 
@@ -165,7 +36,6 @@ multiplication :: proc "c" (L:^lua.State) -> i32{
     // check if integer
     a:=lua.L_checkinteger(L,1)
     b:=lua.L_checkinteger(L,2)
-
     c:lua.Integer = a*b
     // push integer on stack
     lua.pushinteger(L,c)
@@ -177,7 +47,9 @@ multiplication :: proc "c" (L:^lua.State) -> i32{
 
 
 main :: proc() {
- 
+
+    
+
 }
 
 @(test)
@@ -252,7 +124,7 @@ testing ::proc(t: ^testing.T){
         fmt.println("couldnt load file")
     }
 
-    // stroint information in script
+    // store information in script
     if (lua.L_dofile(L,"script2.lua")) == 0{   
         lua.pop(L, lua.gettop(L))
     }
@@ -300,7 +172,9 @@ testing ::proc(t: ^testing.T){
 
     // calling a function that takes two argument and returns one
     // for script 4
-    if (lua.L_dofile(L,"script4.lua")) == 0{   
+    lua.L_loadfile(L,"script4.lua")
+    // load file by calling it
+    if (lua.pcall(L,0,1,0) ) == 0{   
         lua.pop(L, lua.gettop(L))
     }
     else{
@@ -324,10 +198,9 @@ testing ::proc(t: ^testing.T){
         else{
             fmt.println("couldnt load function")
         }
-
- 
+       
     
-    // test metatable (not working :( )
+    // test metatable
     new_string:=cstring("local acc = sys.Account.new(\"Jason\", 1000) \n print(string.format(\"name: %s, balance: %d\", acc:get_name(), acc:get_balance()))")
     if lua.L_dostring(L, new_string) != 0 {
         // get error message from lua
@@ -337,7 +210,13 @@ testing ::proc(t: ^testing.T){
         lua.pop(L,lua.gettop(L))
     }
 
-    // intentional error in string
+    // 
+    new_string2:=cstring("print (\"hello there\")")
+    if lua.L_dostring(L, new_string2) != 0 {
+        fmt.println("Error executing Lua script");
+    }
+
+   // intentional error in string
     faultystring:=cstring("print(return")
     if lua.L_dostring(L, faultystring) != 0 {
         // get error message from lua
@@ -349,8 +228,3 @@ testing ::proc(t: ^testing.T){
 
 
 }
-
-
-
-
-
