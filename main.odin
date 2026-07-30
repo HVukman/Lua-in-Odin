@@ -1,25 +1,20 @@
 package main
 
+
 import "core:fmt"
 import lua "vendor:lua/5.4" // or whatever version you want
-import "core:c"
 import "core:c/libc"
 import "base:runtime"
 import "core:testing"
-import "core:sys/windows"
-import "core:mem"
-import "base:intrinsics"
-import "core:strings"
-
 
 
 open_sys :: proc "c" (L:^lua.State)->i32{
-    
+
     context = runtime.default_context()
     L_Reg1 : lua.L_Reg
-    v_aos: [1]lua.L_Reg 
+    v_aos: [1]lua.L_Reg
     v_aos[0]=L_Reg1
-    
+
 
     return 1
 }
@@ -48,7 +43,7 @@ multiplication :: proc "c" (L:^lua.State) -> i32{
 
 main :: proc() {
 
-    
+
 
 }
 
@@ -62,10 +57,11 @@ testing ::proc(t: ^testing.T){
     }
 
     lua.L_openlibs(L); // Load Lua standard libraries
+
     lua.pushinteger(L,34) // push int on stack
     lua.setglobal(L,cstring("answer"))
     test: =  cstring("print(answer)")
-    
+
     // doing a string in lua
 	if lua.L_dostring(L, test) != 0 {
         fmt.println("Error executing Lua ");
@@ -80,10 +76,10 @@ testing ::proc(t: ^testing.T){
     lua.L_requiref(L, "sys", open_sys, 1)
 
      // calling sys
-    if (lua.L_dofile(L,"main.lua")) == 0{   
+    if (lua.L_dofile(L,"main.lua")) == 0{
         lua.pop(L, lua.gettop(L))
     }
-    
+
 
     // push c function on stack and setglobal or
     //  lua.pushcfunction(L, multiplication)
@@ -101,8 +97,8 @@ testing ::proc(t: ^testing.T){
     L_Reg1.func=multiplication
     L_Reg1.name=cstring("mul")
 
-  
-    // create new table 
+
+    // create new table
     lua.newtable(L)
 
     // set function multiplication
@@ -115,9 +111,9 @@ testing ::proc(t: ^testing.T){
         fmt.println("Error executing Lua script");
     }
 
-   
+
     // doing a script
-    if (lua.L_dofile(L,"script.lua")) == 0{   
+    if (lua.L_dofile(L,"script.lua")) == 0{
         lua.pop(L, lua.gettop(L))
     }
     else{
@@ -125,15 +121,16 @@ testing ::proc(t: ^testing.T){
     }
 
     // store information in script
-    if (lua.L_dofile(L,"script2.lua")) == 0{   
+    if (lua.L_dofile(L,"script2.lua")) == 0{
         lua.pop(L, lua.gettop(L))
     }
     else{
-        fmt.println("couldnt load file")
+        fmt.println(" couldn't load file")
+        lua.L_error(L, "Could not load file %s" , "script2.lua")
     }
     // get variable message from script
     lua.getglobal(L,cstring("message"))
-    
+
     if (lua.isstring(L,-1)){
         answer:=lua.tostring(L,-1)
         lua.pop(L,1)
@@ -141,15 +138,17 @@ testing ::proc(t: ^testing.T){
     }
     else{
         fmt.println("couldn't load script")
+        lua.L_error(L, "Could not load file %s" , "script2.lua")
     }
 
     // calling a function
-    if (lua.L_dofile(L,"script3.lua")) == 0{  
-        // if ok pop it from stack 
+    if (lua.L_dofile(L,"script3.lua")) == 0{
+        // if ok pop it from stack
         lua.pop(L, lua.gettop(L))
     }
     else{
         fmt.println("couldnt load file")
+        lua.L_error(L, "Could not load file %s" , "script3.lua")
     }
 
     // pushing function on stack
@@ -158,27 +157,30 @@ testing ::proc(t: ^testing.T){
     if (lua.isfunction(L,-1)){
         // calling with no arguments
         if (lua.pcall(L,0,1,0) )== 0 {
-            // if ok pop it from stack 
+            // if ok pop it from stack
             lua.pop(L,lua.gettop(L))
         }
         else{
             fmt.println("couldnt load function")
+            lua.L_error(L, "Could not load function" )
         }
-       
+
     }
     else{
         fmt.println("couldn't load script")
+        lua.L_error(L, "Could not load file %s" , "script3.lua")
     }
 
     // calling a function that takes two argument and returns one
     // for script 4
     lua.L_loadfile(L,"script4.lua")
     // load file by calling it
-    if (lua.pcall(L,0,1,0) ) == 0{   
+    if (lua.pcall(L,0,1,0) ) == 0{
         lua.pop(L, lua.gettop(L))
     }
     else{
-        fmt.println("couldnt load file script4")
+        fmt.println("couldnt load file script 4")
+        lua.L_error(L, "Could not load file %s" , "script4.lua")
     }
     // get function and push arguments
     lua.getglobal(L,cstring("my_function"))
@@ -186,6 +188,7 @@ testing ::proc(t: ^testing.T){
     lua.pushinteger(L,34)
 
     // Execute my_function with 2 arguments and 1 return value
+    // The two values on the stack are automatically consumed
         if (lua.pcall(L,2,1,0) )== 0 {
 
             if (lua.isinteger(L,-1)){
@@ -193,37 +196,98 @@ testing ::proc(t: ^testing.T){
                 lua.pop(L,lua.gettop(L))
                 fmt.println("Result: ", result)
             }
-            
+
         }
         else{
             fmt.println("couldnt load function")
         }
-       
-    
-    // test metatable
-    new_string:=cstring("local acc = sys.Account.new(\"Jason\", 1000) \n print(string.format(\"name: %s, balance: %d\", acc:get_name(), acc:get_balance()))")
-    if lua.L_dostring(L, new_string) != 0 {
-        // get error message from lua
-        raised_error:= lua.tostring(L,lua.gettop(L))
-        fmt.println(raised_error)
-        // always pop
-        lua.pop(L,lua.gettop(L))
+
+        lua.getglobal(L,cstring("my_function"))
+        lua.pushnumber(L, 12.0)
+        lua.pushinteger(L,34)
+
+            if (lua.pcall(L,2,1,0) )== 0 {
+
+                if (lua.isinteger(L,-1)){
+                    result:=lua.tointeger(L,-1)
+                    lua.pop(L,lua.gettop(L))
+                    fmt.println("Result: ", result)
+                }
+
+            }
+            else{
+                fmt.println("couldnt load function")
+            }
+
+    // Using function consume_Table from script4.lua
+
+    lua.getglobal(L,cstring("consume_table"))
+    // pushing a table in odin
+
+    lua.newtable(L)
+    // Alternative: lua.createtable(L,0,2) sets space for 2 arguments
+
+    lua.pushinteger(L,1) // push integer key
+    lua.pushnumber(L,3.5)  // push number
+    lua.settable(L,-3) // set field 1 of table on index -3 of stack
+
+    lua.pushinteger(L,2) // push integer key
+    lua.pushnumber(L,8.6) // push number
+    lua.settable(L,-3) // set field 2 of table on index -3 of stack
+
+    // call function consume_Table with 1 argument, the table on stack
+    if (lua.pcall(L,1,1,0) )== 0 {
+
+        if (lua.isnumber(L,-1)){
+            result:=lua.tonumber(L,-1)
+            lua.pop(L,lua.gettop(L))
+            fmt.println("Result: ", f32(result))
+        }
+
+    }
+    else{
+    	fmt.println(lua.L_checkstring(L,-1))
+        fmt.println("couldnt load function consume_table")
     }
 
-    // 
-    new_string2:=cstring("print (\"hello there\")")
-    if lua.L_dostring(L, new_string2) != 0 {
-        fmt.println("Error executing Lua script");
+
+    lua.getglobal(L,cstring("consume_table2"))
+    lua.createtable(L,0,2)
+
+    lua.pushinteger(L,1) // push integer key
+    lua.pushnumber(L,5.5)  // push number
+    lua.settable(L,-3) // set field 1 of table on index -3 of stack
+
+    lua.pushinteger(L,2) // push integer key
+    lua.pushnumber(L,18.6) // push number
+    lua.settable(L,-3) // set field 2 of table on index -3 of stack
+
+    // call function consume_table2 with 1 argument, the table on stack
+    if (lua.pcall(L,1,1,0) )== 0 {
+    // get table value stored with integer key
+         lua.pushinteger(L,1) // push integer key
+         lua.gettable(L,-2)
+         result:= f32(lua.L_checknumber(L,-1))
+         lua.pop(L,lua.gettop(L))
+         fmt.printfln(" result consume_table2 %.2f" , result)
+
+    }
+    else{
+    	fmt.println(lua.L_checkstring(L,-1))
+        fmt.println("couldnt load function consume_table2")
     }
 
-   // intentional error in string
-    faultystring:=cstring("print(return")
-    if lua.L_dostring(L, faultystring) != 0 {
-        // get error message from lua
-        raised_error:= lua.tostring(L,lua.gettop(L))
-        fmt.println(raised_error)
-        // always pop
-        lua.pop(L,lua.gettop(L))
+    faultystring: cstring = `printa+b)`
+    rc := lua.L_dostring(L, faultystring)
+
+    fmt.println("rc =", rc)
+
+    if rc != 0 {
+        err := lua.tostring(L, -1)
+        fmt.println("Lua error:", err)
+        lua.pop(L, 1)
+    } else {
+        fmt.println("ok")
     }
 
 
