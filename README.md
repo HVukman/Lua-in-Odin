@@ -19,3 +19,5 @@ Update 08-05-2025: Removed the dynamic allocations, since they are not needed. A
 Update 05-21-2026 : Removed metatables. Added loafile example.
 
 Update 07-30-2026 : Showed how to add tables in Odin and how to pass them to functions.
+
+Update 07-31-2026 : Figured out metatables and userdata. Showed two examples in script5 and script6.lua.
