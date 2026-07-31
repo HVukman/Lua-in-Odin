@@ -2,7 +2,7 @@ package main
 
 
 import "core:fmt"
-import lua "vendor:lua/5.4" // or whatever version you want
+import lua "vendor:lua/5.4" 
 import "core:c/libc"
 import "base:runtime"
 import "core:testing"
@@ -44,6 +44,42 @@ multiplication :: proc "c" (L:^lua.State) -> i32{
 main :: proc() {
 
 
+	L := lua.L_newstate(); // Create a new Lua state
+    defer lua.close(L); // Clean up later
+    if L == nil {
+        fmt.println("Failed to create Lua state");
+        return;
+    }
+     lua.L_openlibs(L); // Load Lua standard libraries
+    // custom color library
+    //
+
+    lua.L_requiref(L, "colors" , luacolor_open,0)
+	lua.L_loadfile(L,"script6.lua")
+    // load file by calling it
+    if (lua.pcall(L,0,1,0) ) == 0{
+        lua.pop(L, lua.gettop(L))
+    }
+    else{
+
+    	fmt.println(lua.gettop(L))
+    	fmt.println("oops")
+    }
+
+
+    /*
+    // custom array library
+    //
+    lua.L_requiref(L, "array" , luaarray_open,0)
+	lua.L_loadfile(L,"script5.lua")
+    // load file by calling it
+    if (lua.pcall(L,0,1,0) ) == 0{
+        lua.pop(L, lua.gettop(L))
+    }
+    else{
+    	fmt.println("oops")
+    }
+    */
 
 }
 
@@ -51,6 +87,7 @@ main :: proc() {
 testing ::proc(t: ^testing.T){
     L := lua.L_newstate(); // Create a new Lua state
     defer lua.close(L); // Clean up later
+
     if L == nil {
         fmt.println("Failed to create Lua state");
         return;
@@ -74,6 +111,7 @@ testing ::proc(t: ^testing.T){
 
     lua.L_requiref(L,cstring("example"),hello_from_odin,1)
     lua.L_requiref(L, "sys", open_sys, 1)
+    lua.L_requiref(L, "array" , luaarray_open,0)
 
      // calling sys
     if (lua.L_dofile(L,"main.lua")) == 0{
@@ -277,6 +315,19 @@ testing ::proc(t: ^testing.T){
         fmt.println("couldnt load function consume_table2")
     }
 
+    // custom array library
+    lua.L_requiref(L, "array" , luaarray_open,0)
+	lua.L_loadfile(L,"script5.lua")
+    // load file by calling it
+    if (lua.pcall(L,0,1,0) ) == 0{
+        lua.pop(L, lua.gettop(L))
+    }
+    else{
+
+    }
+    /*
+
+
     faultystring: cstring = `printa+b)`
     rc := lua.L_dostring(L, faultystring)
 
@@ -289,6 +340,6 @@ testing ::proc(t: ^testing.T){
     } else {
         fmt.println("ok")
     }
-
+    */
 
 }
