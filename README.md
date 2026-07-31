@@ -12,11 +12,11 @@ Shows:
   * Calling Lua functions from Odin with and without return
   * Getting errors from Lua
 
-Don't forget the lua files.
+Don't forget the Lua files.
 
 Update 08-05-2025: Removed the dynamic allocations, since they are not needed. Added tests. Trying to do metatables, but the fields of the tables are not recognized.
 
-Update 05-21-2026 : Removed metatables. Added loafile example.
+Update 05-21-2026 : Removed metatables. Added luafile example.
 
 Update 07-30-2026 : Showed how to add tables in Odin and how to pass them to functions.
 
