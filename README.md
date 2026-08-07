@@ -27,7 +27,7 @@ Update 07-31-2026 : Figured out metatables and userdata. Showed two examples in 
 
 ## Creating Userdata
 
-Userdata is created via Metatables. Here is the array library (adopted from [here](https://www.lua.org/pil/28.1.html):
+Userdata is created via Metatables. Here is the array library (adopted from [here](https://www.lua.org/pil/28.1.html)):
 ```
 
 package main
