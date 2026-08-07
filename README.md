@@ -32,8 +32,6 @@ Userdata is created via Metatables. Here is the array library:
 
 package main
 
-
-
 import "core:fmt"
 import lua "vendor:lua/5.4"
 import "core:c/libc"
