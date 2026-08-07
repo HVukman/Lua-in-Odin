@@ -1,12 +1,19 @@
 package main
 
+// Kinda source:
+//  https://www.lua.org/pil/28.3.html
+//
 
+// "Color" library
+// Shows how to nest an array
+//
 import "core:fmt"
-import lua "vendor:lua/5.4" // or whatever version you want
+import lua "vendor:lua/5.4"
 import "core:c/libc"
 import "base:runtime"
 import "core:testing"
 
+// Array of pixels
 PixelArray :: struct {
     pixels: []pixel,
     index: int
@@ -19,6 +26,15 @@ pixel :: struct {
 	blue : u8,
 }
 
+// Garbage collect the array
+colorarray_delete  :: proc "c" (L: ^lua.State) -> i32 {
+
+	context = runtime.default_context()
+	a := cast(^PixelArray)lua.touserdata(L, 1)
+    delete (a.pixels)
+	return 0
+}
+
 // make new pixel in color array
 // pixel_array[1].r = 244
 color_newindex :: proc "c" (L: ^lua.State ) -> i32 {
@@ -29,19 +45,9 @@ color_newindex :: proc "c" (L: ^lua.State ) -> i32 {
 
 }
 
-// get pixel index from color array
-color_index :: proc "c" (L: ^lua.State ) -> i32 {
-
-
-	context = runtime.default_context()
-
-    return 1
-
-}
-
-
+// meta table pixel
 pixel_meta := []lua.L_Reg{
-    {"getr",  getr},
+    {"getr",  getr}, // get and set r,g,b
     {"getb",  getb},
     {"getg" , getg},
     {"setr",  setr},
@@ -51,20 +57,22 @@ pixel_meta := []lua.L_Reg{
     {nil, nil},
 }
 
+// meta table color array
 color_meta := []lua.L_Reg{
     {"getpixel" , getpixel},
     {"setpixel" , setpixel},
     {"size" , size},
+    { "__gc", colorarray_delete },
     {nil, nil},
 }
 
 colorlib := []lua.L_Reg{
-	 {"newpixel",  pixel_new},
+	{"newpixel",  pixel_new},
     {"newpixels",  pixels_new},
-
     {nil, nil},
 }
 
+// Return size of pixel array
 size :: proc "c" (L: ^lua.State) -> i32 {
 
 	context = runtime.default_context()
@@ -75,8 +83,7 @@ size :: proc "c" (L: ^lua.State) -> i32 {
 
 
 // new pixel
-//
-//
+
 pixel_new :: proc "c" (L: ^lua.State) -> i32 {
 
 	context = runtime.default_context()
@@ -90,6 +97,8 @@ pixel_new :: proc "c" (L: ^lua.State) -> i32 {
 
     return 1
 }
+
+// get and set r,g,b from pixel
 getr :: proc "c" (L: ^lua.State) -> i32 {
 
 	v:= cast(^pixel)lua.L_checkudata(L,1,"PixelMT")
@@ -156,8 +165,6 @@ setpixel :: proc "c" (L: ^lua.State) -> i32 {
 
     // Get the PixelArray userdata
     v := cast(^PixelArray)lua.L_checkudata(L, 1, "PixelArrayMT")
-
-
     index := int(lua.L_checkinteger(L, 2))
 
 
@@ -176,7 +183,7 @@ setpixel :: proc "c" (L: ^lua.State) -> i32 {
     return 0
 }
 
-
+// get pixel n in an array
 getpixel :: proc "c" (L: ^lua.State) -> i32 {
 
 
@@ -194,7 +201,7 @@ getpixel :: proc "c" (L: ^lua.State) -> i32 {
 	return 1
 }
 
-// https://www.lua.org/pil/28.3.html
+
 luacolor_open :: proc "c" (L: ^lua.State) -> i32 {
 
 	context = runtime.default_context()

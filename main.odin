@@ -2,7 +2,7 @@ package main
 
 
 import "core:fmt"
-import lua "vendor:lua/5.4" 
+import lua "vendor:lua/5.4"
 import "core:c/libc"
 import "base:runtime"
 import "core:testing"
@@ -54,6 +54,7 @@ main :: proc() {
     // custom color library
     //
 
+    /*
     lua.L_requiref(L, "colors" , luacolor_open,0)
 	lua.L_loadfile(L,"script6.lua")
     // load file by calling it
@@ -65,9 +66,9 @@ main :: proc() {
     	fmt.println(lua.gettop(L))
     	fmt.println("oops")
     }
+    */
 
 
-    /*
     // custom array library
     //
     lua.L_requiref(L, "array" , luaarray_open,0)
@@ -79,7 +80,7 @@ main :: proc() {
     else{
     	fmt.println("oops")
     }
-    */
+
 
 }
 
@@ -341,5 +342,47 @@ testing ::proc(t: ^testing.T){
         fmt.println("ok")
     }
     */
+
+}
+
+@(test)
+testing2 ::proc(t: ^testing.T){
+
+	L := lua.L_newstate(); // Create a new Lua state
+    defer lua.close(L); // Clean up later
+    if L == nil {
+        fmt.println("Failed to create Lua state");
+        return;
+    }
+     lua.L_openlibs(L); // Load Lua standard libraries
+    // custom color library
+    //
+
+    /*
+    lua.L_requiref(L, "colors" , luacolor_open,0)
+	lua.L_loadfile(L,"script6.lua")
+    // load file by calling it
+    if (lua.pcall(L,0,1,0) ) == 0{
+        lua.pop(L, lua.gettop(L))
+    }
+    else{
+
+    	fmt.println(lua.gettop(L))
+    	fmt.println("oops")
+    }
+    */
+
+
+    // custom array library
+    //
+    lua.L_requiref(L, "array" , luaarray_open,0)
+	lua.L_loadfile(L,"script5.lua")
+    // load file by calling it
+    if (lua.pcall(L,0,1,0) ) == 0{
+        lua.pop(L, lua.gettop(L))
+    }
+    else{
+    	fmt.println("oops")
+    }
 
 }

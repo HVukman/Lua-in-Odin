@@ -1,10 +1,10 @@
 package main
 
-// Source:
+// Kinda Source:
 // https://martin-fieber.de/blog/cpp-and-lua/#user-data
 
 import "core:fmt"
-import lua "vendor:lua/5.4" // or whatever version you want
+import lua "vendor:lua/5.4"
 import "core:c/libc"
 import "base:runtime"
 
@@ -13,7 +13,7 @@ array :: struct {
 }
 
 
-
+// Create an entry in an array
 array_newindex :: proc "c" (L: ^lua.State ) -> i32 {
 
 	context = runtime.default_context()
@@ -68,35 +68,30 @@ array_index :: proc "c" (L: ^lua.State ) -> i32 {
 
 }
 
+// metatable methods
 array_meta := []lua.L_Reg{
     {"__index",  array_index},
     {"__newindex",  array_newindex},
-    { "__gc", array_delete },
-   /* {"set",  setarray},
-    {"get",  getarray},
-    {"size", getsize},*/
+    { "__gc", array_delete }, // set the garbage method
+
     {nil, nil},
 }
 
 arraylib := []lua.L_Reg{
     {"new",  luaarray_new},
-   /* {"set",  setarray},
-    {"get",  getarray},
-    {"size", getsize},*/
     {nil, nil},
 }
 
+// called when garbage collecting
 array_delete :: proc "c" (L: ^lua.State) -> i32 {
 
 	context = runtime.default_context()
-	n := int(lua.L_checkinteger(L, 1))
-    nbytes :uint= uint(size_of(array) + (n - 1) * size_of(f64))
-
-    a := cast(^array)lua.newuserdata(L, nbytes)
+	a := cast(^array)lua.touserdata(L, 1)
     delete (a.values)
 	return 0
 }
 
+// Create a new array of size n
 luaarray_new :: proc "c" (L: ^lua.State) -> i32 {
 
 	context = runtime.default_context()
@@ -110,6 +105,7 @@ luaarray_new :: proc "c" (L: ^lua.State) -> i32 {
 	return 1
 }
 
+// Register the new library
 luaarray_open :: proc "c" (L: ^lua.State) -> i32 {
 
 	context = runtime.default_context()

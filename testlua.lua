@@ -1,6 +1,6 @@
 -- comparison with array defined in odin (script5.lua)
 local a = {}
-local limit = 1000000
+local limit = 100000
 
 for i = 1, limit do
     a[i] = 0.0

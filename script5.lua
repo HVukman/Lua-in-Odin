@@ -1,6 +1,6 @@
 local array = require("array")
 
-local limit = 1000000
+local limit = 100000
 local a = array.new(limit)
 a[1] = 3.3
 a[4] = 8.9
