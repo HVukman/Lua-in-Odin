@@ -25,6 +25,39 @@ Update 07-30-2026 : Showed how to add tables in Odin and how to pass them to fun
 
 Update 07-31-2026 : Figured out metatables and userdata. Showed two examples in script5 and script6.lua. Testlua scripts show the comparison in pure Lua. Way less Ram is used with Userdata.
 
+## Quickstart
+
+```
+package main
+
+
+import "core:fmt"
+import lua "vendor:lua/5.4" // or other version
+
+
+main :: proc() {
+
+
+	L := lua.L_newstate(); // Create a new Lua state
+    defer lua.close(L); // Clean up later
+    if L == nil {
+        fmt.println("Failed to create Lua state");
+        return;
+    }
+     lua.L_openlibs(L); // Load Lua standard libraries
+    // doing a script example: script.lua
+	/*
+	print("hello world")
+	*/
+    if (lua.L_dofile(L,"script.lua")) == 0{
+        lua.pop(L, lua.gettop(L))
+    }
+    else{
+        fmt.println("couldnt load file")
+    }
+}
+
+```
 ## Creating Userdata
 
 Userdata is created via Metatables. Here is the array library (adopted from [here](https://www.lua.org/pil/28.1.html)):
