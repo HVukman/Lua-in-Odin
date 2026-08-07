@@ -27,7 +27,8 @@ Update 07-31-2026 : Figured out metatables and userdata. Showed two examples in 
 ## Creating Userdata
 
 Userdata is created via Metatables. Here is the array library:
-´´´
+```
+
 package main
 
 // Kinda Source:
@@ -144,11 +145,11 @@ luaarray_open :: proc "c" (L: ^lua.State) -> i32 {
 	lua.L_newlib(L, arraylib)
 	return 1
 }
-´´´
+```
 This userdata needs to be deleted with an extra GC method, if it needs to be deleted in Odin too. Likewise for example, Textures in Raylib etc.
 This wastes way less Ram than an equivalent Lua program.
 
-´´´
+```
 -- Using array library
 local array = require("array")
 
@@ -163,9 +164,9 @@ print(" a[4] as array", a[4])
 local mb = collectgarbage("count") / 1024
 print(string.format("%.2f MB", mb))
 
-´´´
+```
 Testscript in Lua: (testlua.lua)
-´´´
+```
 -- comparison with array defined in odin (script5.lua)
 local a = {}
 local limit = 100000
@@ -184,21 +185,21 @@ print(a[4])
 local mb = collectgarbage("count") / 1024
 print(string.format("%.2f MB", mb))
 
-´´´
+```
 
 
-´´´
+```
 odin run .
 a[1] as array  3.3
 a[4] as array  8.9
 0.78 MB
-´´´
+```
 
-´´´
+```
 lua .\testlua.lua
 3.3
 8.9
 2.02 MB
-´´´
+```
 
 More than half of memory less is used. Is it faster? No. Lua tables are highly optimized for access. 
