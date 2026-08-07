@@ -95,7 +95,7 @@ luaarray_new :: proc "c" (L: ^lua.State) -> i32 {
 
 	context = runtime.default_context()
 	n := int(lua.L_checkinteger(L, 1))
-    nbytes :uint= uint(size_of(array) + (n - 1) * size_of(f64))
+    nbytes :uint= uint(size_of(array) + (n - 1) * size_of(f64)) // This is the most important part. Make room for the data.
 
     a := cast(^array)lua.newuserdata(L, nbytes)
     a.values = make([]f64, n)
