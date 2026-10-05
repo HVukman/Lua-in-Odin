@@ -634,4 +634,4 @@ lua .\testlua.lua
 2.02 MB
 ```
 
-More than half of memory less is used. Is it faster? No. Lua tables are highly optimized for access. 
+More than half of memory less is used. Is it faster? For small arrays: No. Yes, for very big arrays. Lua tables are highly optimized for access. 
