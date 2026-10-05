@@ -524,7 +524,9 @@ luaarray_open :: proc "c" (L: ^lua.State) -> i32 {
 ```
 This userdata needs to be deleted with an extra GC method, if it needs to be deleted in Odin too. Likewise for example, Textures in Raylib etc.
 This wastes way less Ram than an equivalent Lua program. 
-Update 10-05-2026 : I added new metamethods to the array class. Now you can add, subtract and compare arrays.
+
+Update 10-05-2026 : I added new metamethods to the array class. Now you can add, subtract and compare arrays. See here for list of metamethods :
+https://gist.github.com/telemachus/ba00e9443a1ff6a983abcf060d85ce19
 
 ```
 -- Using array library
