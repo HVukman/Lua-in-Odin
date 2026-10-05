@@ -51,36 +51,55 @@ main :: proc() {
         return;
     }
      lua.L_openlibs(L); // Load Lua standard libraries
-    // custom color library
-    //
 
-    /*
-    lua.L_requiref(L, "colors" , luacolor_open,0)
-	lua.L_loadfile(L,"script6.lua")
-    // load file by calling it
-    if (lua.pcall(L,0,1,0) ) == 0{
-        lua.pop(L, lua.gettop(L))
-    }
-    else{
+   /**/
+    lua.L_loadfile(L,"new.lua")
+       // load file by calling it
 
-    	fmt.println(lua.gettop(L))
-    	fmt.println("oops")
-    }
-    */
+       if (lua.pcall(L,0,1,0) ) == 0{
+          // lua.pop(L, lua.gettop(L))
+       }
+       else{
+       		fmt.println("oops")
+       }
 
+       // safe reference
+        script_ref := lua.L_ref(L, lua.REGISTRYINDEX)
 
-    // custom array library
-    //
-    lua.L_requiref(L, "array" , luaarray_open,0)
-	lua.L_loadfile(L,"script5.lua")
-    // load file by calling it
-    if (lua.pcall(L,0,1,0) ) == 0{
-        lua.pop(L, lua.gettop(L))
-    }
-    else{
-    	fmt.println("oops")
-    }
+        // get reference
+        lua.rawgeti(L, lua.REGISTRYINDEX, lua.Integer(script_ref))
+        fmt.println("script ref ", script_ref)
+        // get the table
+        lua.pushinteger(L,1)
+        lua.gettable(L,-2)
 
+        if (lua.pcall(L, 0, 0, 0) != 0) {
+	        fmt.println("Hello?")
+	        lua.pop(L,1)
+        }
+
+        	        lua.pushinteger(L,2)
+	        lua.gettable(L,-2)
+
+	        if (lua.pcall(L, 0, 0, 0) != 0) {
+		        fmt.println("goodbye?")
+		        lua.pop(L,1)
+
+			}
+
+        // Remove the table
+        lua.pop(L, 1);
+
+        // custom array library
+        lua.L_requiref(L, "array" , luaarray_open,0)
+        lua.L_loadfile(L,"script5.lua")
+        // load file by calling it
+        if (lua.pcall(L,0,1,0) ) == 0{
+            lua.pop(L, lua.gettop(L))
+        }
+        else{
+
+        }
 
 }
 
@@ -96,6 +115,7 @@ testing ::proc(t: ^testing.T){
 
     lua.L_openlibs(L); // Load Lua standard libraries
 
+    /*
     lua.pushinteger(L,34) // push int on stack
     lua.setglobal(L,cstring("answer"))
     test: =  cstring("print(answer)")
@@ -315,6 +335,7 @@ testing ::proc(t: ^testing.T){
     	fmt.println(lua.L_checkstring(L,-1))
         fmt.println("couldnt load function consume_table2")
     }
+    */
 
     // custom array library
     lua.L_requiref(L, "array" , luaarray_open,0)
@@ -342,47 +363,5 @@ testing ::proc(t: ^testing.T){
         fmt.println("ok")
     }
     */
-
-}
-
-@(test)
-testing2 ::proc(t: ^testing.T){
-
-	L := lua.L_newstate(); // Create a new Lua state
-    defer lua.close(L); // Clean up later
-    if L == nil {
-        fmt.println("Failed to create Lua state");
-        return;
-    }
-     lua.L_openlibs(L); // Load Lua standard libraries
-    // custom color library
-    //
-
-    /*
-    lua.L_requiref(L, "colors" , luacolor_open,0)
-	lua.L_loadfile(L,"script6.lua")
-    // load file by calling it
-    if (lua.pcall(L,0,1,0) ) == 0{
-        lua.pop(L, lua.gettop(L))
-    }
-    else{
-
-    	fmt.println(lua.gettop(L))
-    	fmt.println("oops")
-    }
-    */
-
-
-    // custom array library
-    //
-    lua.L_requiref(L, "array" , luaarray_open,0)
-	lua.L_loadfile(L,"script5.lua")
-    // load file by calling it
-    if (lua.pcall(L,0,1,0) ) == 0{
-        lua.pop(L, lua.gettop(L))
-    }
-    else{
-    	fmt.println("oops")
-    }
 
 }
