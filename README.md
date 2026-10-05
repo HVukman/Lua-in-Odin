@@ -25,6 +25,8 @@ Update 07-30-2026 : Showed how to add tables in Odin and how to pass them to fun
 
 Update 07-31-2026 : Figured out metatables and userdata. Showed two examples in script5 and script6.lua. Testlua scripts show the comparison in pure Lua. Way less Ram is used with Userdata.
 
+Update 10-05-2026 : Added metamethods to arrays. Showed that arrays are faster than comparable tables.
+
 ## Quickstart
 
 ```
